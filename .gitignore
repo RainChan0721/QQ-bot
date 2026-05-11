@@ -1,0 +1,69 @@
+# Python / uv
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# 虚拟环境
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 环境变量（包含敏感信息）
+.env
+.env.local
+.env.*.local
+
+# uv / Python 版本管理
+.python-version
+
+# 日志
+*.log
+logs/
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+# 群黑名单数据（本地生成，不上传）
+group_blacklist.json
+
+# 本地数据目录（聊天记忆、运行时数据等）
+data/
+
+# Prompt 文件（本地自定义，不上传）
+prompts/*.txt
+
+# 测试脚本（可能包含隐私信息，不上传）
+tests/
