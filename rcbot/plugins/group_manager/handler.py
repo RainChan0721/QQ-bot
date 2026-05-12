@@ -103,13 +103,23 @@ def parse_rcbot_command(text: str):
 
     cmd = parts[0]
 
-    # ===== 旧格式: group accept/reject =====
+    # ===== 旧格式: group accept/reject/get =====
     if cmd == "group":
-        if len(parts) < 3:
+        if len(parts) < 2:
             logger.debug("[命令解析] group 格式参数不足")
             return None, None, "拒绝进群", False
 
         action = parts[1]
+
+        # group get 不需要 QQ 号
+        if action == "get":
+            logger.debug("[命令解析] action=get")
+            return "get", None, "拒绝进群", False
+
+        if len(parts) < 3:
+            logger.debug("[命令解析] group 格式参数不足")
+            return None, None, "拒绝进群", False
+
         try:
             target_qq = int(parts[2])
         except ValueError:
@@ -317,6 +327,7 @@ async def handle_rcbot(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         logger.info("[命令] 参数解析失败，返回用法提示")
         help_text = (
             f"用法:\n"
+            f"/{_TRIGGER} group get — 查看本群待处理请求\n"
             f"/{_TRIGGER} group accept [QQ号] — 同意进群\n"
             f"/{_TRIGGER} group reject [QQ号] [理由] [true] — 拒绝进群\n"
             f"/{_TRIGGER} 同意 [QQ号] — 同意进群（快捷版）\n"
@@ -326,6 +337,23 @@ async def handle_rcbot(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         if _CHAT_AI_ENABLED:
             help_text += "\n@Bot [内容] AI聊天"
         await rcbot_cmd.finish(help_text)
+        return
+
+    # group get: 列出当前群所有待处理请求
+    if action == "get":
+        pending = list_requests(group_id)
+        if not pending:
+            await rcbot_cmd.finish("当前没有待处理的进群请求")
+            return
+        lines = [f"📋 群 {group_id} 待处理进群请求（共 {len(pending)} 条）:"]
+        for idx, req in enumerate(pending, 1):
+            lines.append(
+                f"\n[{idx}] {req.nickname}({req.user_id})\n"
+                f"    等级: {req.level if req.level else '未知'}\n"
+                f"    答案: {req.comment}"
+            )
+        lines.append(f"\n使用 /{_TRIGGER} group accept <QQ号> 或 /{_TRIGGER} group reject <QQ号> [理由] 处理")
+        await rcbot_cmd.finish("\n".join(lines))
         return
 
     req = get_request(group_id, target_qq)
@@ -391,6 +419,7 @@ async def handle_rcbot(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         logger.info(f"[命令] 未知 action: {action}")
         help_text = (
             f"用法:\n"
+            f"/{_TRIGGER} group get — 查看本群待处理请求\n"
             f"/{_TRIGGER} group accept [QQ号] — 同意进群\n"
             f"/{_TRIGGER} group reject [QQ号] [理由] [true] — 拒绝进群\n"
             f"/{_TRIGGER} 同意 [QQ号] — 同意进群（快捷版）\n"
