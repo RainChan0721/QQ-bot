@@ -26,6 +26,7 @@ from rcbot.store import (
     add_request,
     get_request,
     remove_request,
+    list_requests,
     is_blacklisted,
     add_to_blacklist,
     remove_from_blacklist,
